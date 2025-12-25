@@ -4,51 +4,38 @@
 $ErrorActionPreference = "Stop"
 
 # Configuration
-$taskName = "PersonalBrowserTabs"
-$taskPath = "\REGGIE_WORKFLOW_TASKS\"
-$batFileName = "reggie-workspace.bat"  # ← FIXED
+$taskName = "ReggieWorkspace"
+$taskPath = "\REGGIE_WORKFLOW_TABS\"
+$batFileName = "reggie-workspace.bat"
 $batDestination = "$env:USERPROFILE\Desktop\$batFileName"
 $repoUrl = "https://raw.githubusercontent.com/blueivy828/reggie-win-workspace/refs/heads/main/$batFileName"
 
-Write-Host "Setting up Personal Browser Tabs automation..." -ForegroundColor Cyan
+Write-Host "Setting up Reggie Workspace automation..." -ForegroundColor Cyan
 
 # Download the .bat file
 Write-Host "Downloading $batFileName..." -ForegroundColor Yellow
 Invoke-WebRequest -Uri $repoUrl -OutFile $batDestination
 Write-Host "✓ Downloaded to $batDestination" -ForegroundColor Green
 
-# Create task folder if it doesn't exist
-$scheduleService = New-Object -ComObject Schedule.Service
-$scheduleService.Connect()
-$rootFolder = $scheduleService.GetFolder("\")
-
-try {
-    $null = $scheduleService.GetFolder($taskPath)
-    Write-Host "✓ Task folder already exists" -ForegroundColor Green
-} catch {
-    Write-Host "Creating task folder..." -ForegroundColor Yellow
-    $null = $rootFolder.CreateFolder($taskPath)
-    Write-Host "✓ Task folder created" -ForegroundColor Green
-}
-
-# Check if task already exists
-$existingTask = Get-ScheduledTask -TaskName $taskName -TaskPath $taskPath -ErrorAction SilentlyContinue
+# Check if task already exists and remove it
+Write-Host "Setting up scheduled task..." -ForegroundColor Yellow
+$existingTask = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
 
 if ($existingTask) {
-    Write-Host "Task already exists. Updating..." -ForegroundColor Yellow
-    Unregister-ScheduledTask -TaskName $taskName -TaskPath $taskPath -Confirm:$false
+    Write-Host "Removing existing task..." -ForegroundColor Yellow
+    Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# Create scheduled task
-Write-Host "Creating scheduled task..." -ForegroundColor Yellow
-
+# Create the scheduled task components
 $action = New-ScheduledTaskAction -Execute $batDestination
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
 $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
-$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 5)
 
+# Register the task in the custom folder
 Register-ScheduledTask -TaskName $taskName -TaskPath $taskPath -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
 
-Write-Host "✓ Scheduled task created at $taskPath$taskName" -ForegroundColor Green
-Write-Host "`nSetup complete! Browser tabs will open on next login." -ForegroundColor Cyan
-Write-Host "Test it now by running the task manually in Task Scheduler." -ForegroundColor Gray
+Write-Host "✓ Scheduled task created: $taskPath$taskName" -ForegroundColor Green
+Write-Host "`n✅ Setup complete!" -ForegroundColor Cyan
+Write-Host "Your browser tabs will open automatically on next login." -ForegroundColor White
+Write-Host "`nTo test now, run: schtasks /run /tn `"$taskPath$taskName`"" -ForegroundColor Gray
