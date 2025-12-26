@@ -1,130 +1,118 @@
-## 🚀 One-Line Installation
+# Reggie Win Workspace
 
-Open PowerShell as **Administrator** and run:
+Automated Windows workspace setup - opens browser tabs and apps on login.
+
+## Install
+
 ```powershell
 irm https://raw.githubusercontent.com/blueivy828/reggie-win-workspace/main/setup.ps1 | iex
 ```
 
-That's it! Your browser tabs will automatically open on next login.
+## What It Does
 
-## 📋 What This Does
+- Installs dev tools (Node.js, Git, pnpm, VS Code, Cursor, Antigravity)
+- Downloads workspace launcher to Desktop
+- Creates login task via Task Scheduler
+- Sets up PowerShell aliases (git shortcuts, unix-like commands)
 
-- Downloads the batch script to your Desktop
-- Creates a Task Scheduler folder: `REGGIE_WORKFLOW_TASKS`
-- Sets up an automated task to run on login
-- Opens Microsoft Edge with your configured tabs
+## Customize
 
-## 🔧 Manual Installation
+Edit `reggie-workspace.bat` on your Desktop:
 
-If you prefer manual setup:
-
-1. **Download the batch file:**
-```powershell
-   Invoke-WebRequest -Uri "https://raw.githubusercontent.com/blueivy828/reggie-win-workspace/main/reggie-workflow.bat" -OutFile "$env:USERPROFILE\Desktop\reggie-workflow.bat"
-```
-
-2. **Run the setup script:**
-```powershell
-   Invoke-WebRequest -Uri "https://raw.githubusercontent.com/blueivy828/reggie-win-workspace/main/setup.ps1" -OutFile "setup.ps1"
-   .\setup.ps1
-   Remove-Item setup.ps1
-```
-
-## ✏️ Customization
-
-### Change Browser Tabs
-
-Edit `personal-brows-tabs.bat` and modify the URLs:
 ```batch
 @echo off
-start "" msedge "https://your-url-1.com" "https://your-url-2.com"
+start "" msedge "https://your-urls-here.com"
+start "" powershell
+start "" "C:\path\to\app.exe"
 ```
 
-### Change Browser
+**Other browsers:** Replace `msedge` with `chrome`, `firefox`, or `brave`
 
-Replace `msedge` with:
-- `chrome` - Google Chrome
-- `firefox` - Firefox
-- `brave` - Brave Browser
+## Uninstall
 
-### Update Existing Installation
-
-Just run the installation command again:
 ```powershell
-irm https://raw.githubusercontent.com/blueivy828/reggie-win-workspace/main/setup.ps1 | iex
+Unregister-ScheduledTask -TaskName "ReggieWorkspace" -Confirm:$false
+Remove-Item "$env:USERPROFILE\Desktop\reggie-workspace.bat"
 ```
 
-## 🗑️ Uninstallation
+## Troubleshooting
 
-Remove the scheduled task:
-```powershell
-Unregister-ScheduledTask -TaskName "PersonalBrowserTabs" -TaskPath "\REGGIE_WORKFLOW_TASKS\" -Confirm:$false
-```
-
-Delete the batch file:
-```powershell
-Remove-Item "$env:USERPROFILE\Desktop\personal-brows-tabs.bat"
-```
-
-## 🛠️ Troubleshooting
-
-### Task doesn't run on login
-
-1. Open Task Scheduler (`taskschd.msc`)
-2. Navigate to `REGGIE_WORKFLOW_TASKS`
-3. Right-click `PersonalBrowserTabs` → Properties
-4. Ensure "Run whether user is logged on or not" is **not** checked
-5. Check "Run with highest privileges" if needed
-
-### PowerShell execution policy error
-
-Run PowerShell as Administrator and execute:
+**Execution policy error:**
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
-### Tabs open but browser not default
+**Task not running:** Open Task Scheduler > find `ReggieWorkspace` > check trigger settings
 
-The script uses Microsoft Edge by default. To use your default browser:
-
-Edit the `.bat` file and replace `msedge` with `start`:
-```batch
-@echo off
-start "" "https://chat.openai.com"
-start "" "https://claude.ai"
-start "" "https://grok.x.ai"
-start "" "https://www.youtube.com"
-start "" "https://github.com"
-start "" "https://www.google.com"
-```
-
-## 📁 File Structure
-```
-.
-├── personal-brows-tabs.bat    # The batch script
-├── setup.ps1                  # Automated installer
-└── README.md                  # This file
-```
-
-## 🔐 Security Note
-
-The setup script requires administrator privileges to create scheduled tasks. Always review scripts before running them with elevated permissions.
-
-## 📝 Requirements
+## Requirements
 
 - Windows 10/11
-- PowerShell 5.1 or later
-- Microsoft Edge (or modify for your browser)
-- Internet connection for initial setup
+- PowerShell 5.1+
+PS C:\Users\PC\Desktop> ls
 
-## 🤝 Contributing
 
-Feel free to fork and customize for your workflow!
+    Directory: C:\Users\PC\Desktop
 
-## 📜 License
 
-MIT License - Use freely for personal or commercial projects
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        12/26/2025   7:05 AM                .claude
+-a----        12/26/2025   7:05 AM            218 nul
+-a----        12/17/2025   6:24 PM           2244 Obsidian.lnk
+-a----        12/26/2025   8:23 AM           1137 README.md
+-a----        12/26/2025   8:17 AM            165 reggie-workspace.bat
+-a----        12/26/2025   8:11 AM          12273 setup.ps1
+-a----        12/17/2025   5:23 PM           1395 Visual Studio Code.lnk
 
----
 
-**Pro Tip:** Bookmark the installation command for quick setup on new machines! 🎯
+PS C:\Users\PC\Desktop> cat README.md
+# Reggie Win Workspace
+
+Automated Windows workspace setup - opens browser tabs and apps on login.
+
+## Install
+
+```powershell
+irm https://raw.githubusercontent.com/blueivy828/reggie-win-workspace/main/setup.ps1 | iex
+```
+
+## What It Does
+
+- Installs dev tools (Node.js, Git, pnpm, VS Code, Cursor, Antigravity)
+- Downloads workspace launcher to Desktop
+- Creates login task via Task Scheduler
+- Sets up PowerShell aliases (git shortcuts, unix-like commands)
+
+## Customize
+
+Edit `reggie-workspace.bat` on your Desktop:
+
+```batch
+@echo off
+start "" msedge "https://your-urls-here.com"
+start "" powershell
+start "" "C:\path\to\app.exe"
+```
+
+**Other browsers:** Replace `msedge` with `chrome`, `firefox`, or `brave`
+
+## Uninstall
+
+```powershell
+Unregister-ScheduledTask -TaskName "ReggieWorkspace" -Confirm:$false
+Remove-Item "$env:USERPROFILE\Desktop\reggie-workspace.bat"
+```
+
+## Troubleshooting
+
+**Execution policy error:**
+```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Task not running:** Open Task Scheduler > find `ReggieWorkspace` > check trigger settings
+
+## Requirements
+
+- Windows 10/11
+- PowerShell 5.1+
